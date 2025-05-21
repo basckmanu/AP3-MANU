@@ -6,7 +6,7 @@
 <section>
     <img class="groupe" src="/image/groupe.jpg" />
 
-    <p class="texte">Nous transformons les idées en réalité.
+    <p class="texte">tgggggggg Nous transformons les idées en réalité.
         Publicom c’est la fusion de publicité & communication avec une forte appétence Design & Digitale : rien que pour vous, par nous !
 
         Avec un concentré de compétences pour agir de manière agile, nos missions sont menées sans détours pour rendre vos projets uniques.
