@@ -20,27 +20,45 @@ class Message extends BaseController
     public function index(): string
     {
         $user = auth()->user();
+        $filtreNonExpire = $this->request->getGet('non_expire');
+
+        // Si l'utilisateur n'est pas admin, on filtre par sa commune
         if (!$user->inGroup('admin')) {
             $userId = $user->IDCOMMUNE;
-            // dd($userId);
-            $listeMessages = $this->messageModel->getAllMessageByCommune($userId);
-            // var_dump($user);
-            // var_dump($listeMessages);
-            // die();
-            return view('messages/gestion_message', [
-                'messages' => $listeMessages
-            ]);
+
+            if ($filtreNonExpire) {
+                // Récupérer les messages non expirés 
+                $listeMessages = $this->messageModel
+                    ->where('IDCOMMUNE', $userId)
+                    ->groupStart()
+                    ->where('EXPIRATION', null)
+                    ->orWhere('EXPIRATION >', date('Y-m-d H:i:s'))
+                    ->groupEnd()
+                    ->findAll();
+            } else {
+                // Récupérer tous les messages de sa commune
+                $listeMessages = $this->messageModel->getAllMessageByCommune($userId);
+            }
+
+            return view('messages/gestion_message', ['messages' => $listeMessages]);
         }
 
-        $messages = $this->messageModel->findAll();
+        // on récupère tous les messages (filtrés ou non selon la requête)
+        if ($filtreNonExpire) {
+            $messages = $this->messageModel
+                ->groupStart()
+                ->where('EXPIRATION', null)
+                ->orWhere('EXPIRATION >', date('Y-m-d H:i:s'))
+                ->groupEnd()
+                ->findAll();
+        } else {
+            $messages = $this->messageModel->findAll();
+        }
 
-        // var_dump($messages);
-        // die();
-
-        return view('messages/gestion_message', [
-            'messages' => $messages
-        ]);
+        return view('messages/gestion_message', ['messages' => $messages]);
     }
+
+
 
     // Afficher le formulaire pour ajouter un message
     public function ajout(): string
@@ -77,10 +95,20 @@ class Message extends BaseController
     public function create()
     {
         $message = $this->request->getPost();
-        // dd($message);
+
+        // Vérifier si une date d'expiration est fournie et si elle est déjà passée
+        if (!empty($message['EXPIRATION']) && strtotime($message['EXPIRATION']) < time()) {
+            // Redirection vers le formulaire avec message d'erreur et anciennes données conservées
+            return redirect()->back()->withInput()->with('error', 'La date d\'expiration ne peut pas être déjà passée.');
+        }
+
+        // Insérer le message dans la base de données
         $this->messageModel->insert($message);
+
+        // Rediriger vers la liste des messages
         return redirect('message');
     }
+
 
     // Afficher le formulaire pour modifier un message
     public function modif($id): string

@@ -25,6 +25,9 @@
     <label for="couleur">Couleur</label>
     <input type="color" id="COULEUR" name="COULEUR" value="<?= $message['COULEUR'] ?>" required />
 
+    <label for="couleur">Expiration</label>
+    <input type="date" id="EXPIRATION" name="EXPIRATION" value="<?= $message['EXPIRATION'] ?>" required />
+
    <!-- <label for="taille">Taille :</label>
     <input type="text" id="taille" name="TAILLE" value="<?= $message['TAILLE'] ?>" required /> -->
 

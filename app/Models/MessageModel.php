@@ -12,7 +12,7 @@ class MessageModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['IDCOMMUNE', 'ETAT', 'TEXTE', 'COULEUR', 'TAILLE'];
+    protected $allowedFields    = ['IDCOMMUNE', 'ETAT', 'TEXTE', 'COULEUR', 'TAILLE', 'EXPIRATION'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -64,5 +64,10 @@ class MessageModel extends Model
     {
         $this->where('message.IDCOMMUNE', $IDCOMMUNE)
             ->delete();
+    }
+    //ajout d'une methode pour récuprér uniquement les messages non expirés
+    public function getValidMessages()
+    {
+        return $this->where('expiration IS NULL ou expiration >', date('Y-m-d H:i:s'))->findAll();
     }
 }
